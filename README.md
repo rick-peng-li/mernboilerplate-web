@@ -448,16 +448,15 @@ mernboilerplate-web
 │   ├── package.json
 │   └── vite.config.js
 ├── server
-│   ├── src
-│   │   ├── config
-│   │   ├── controllers
-│   │   ├── data
-│   │   ├── middleware
-│   │   ├── models
-│   │   ├── routes
-│   │   ├── services
-│   │   ├── utils
-│   │   └── validators
+│   ├── config
+│   ├── controllers
+│   ├── data
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── services
+│   ├── utils
+│   ├── validators
 │   └── package.json
 ├── .env.example
 ├── .gitignore
