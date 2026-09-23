@@ -1,33 +1,24 @@
 {
     "name": "mern-project-console",
-    "version": "1.0.5",
+    "version": "2.0.0",
+    "private": true,
+    "description": "A modern full-stack MERN project console powered by Vite, React 19, Express 5, and MongoDB-ready APIs.",
+    "workspaces": [
+        "client",
+        "server"
+    ],
     "engines": {
-        "node": "18.x",
-        "yarn": "1.x"
+        "node": ">=20.0.0",
+        "npm": ">=10.0.0"
     },
-    "description": "A MERN project console with connected frontend and backend CRUD flows",
-    "main": "server.js",
     "scripts": {
-        "test": "jest",
-        "start": "node server.js",
-        "dev": "nodemon server.js",
-        "client": "cd client && yarn start",
-        "mern": "concurrently -n 'server,client' -c 'yellow,blue' \"yarn run dev\" \"yarn run client\"",
-        "heroku-postbuild": "cd client && yarn install && yarn run build"
-    },
-    "author": "Gaurav Walia",
-    "license": "ISC",
-    "dependencies": {
-        "axios": "^1.3.3",
-        "cors": "^2.8.5",
-        "express": "^4.18.2",
-        "mocha": "^10.2.0",
-        "mongoose": "^6.9.1"
+        "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
+        "build": "npm run build --workspace client && npm run build --workspace server",
+        "start": "npm run start --workspace server",
+        "client": "npm run dev --workspace client",
+        "server": "npm run dev --workspace server"
     },
     "devDependencies": {
-        "concurrently": "^7.6.0",
-        "dotenv": "^16.0.3",
-        "nodemon": "^2.0.20",
-        "supertest": "^6.3.3"
+        "concurrently": "^9.2.4"
     }
 }

@@ -1,44 +1,147 @@
 # MERN Project Console
 
-一个基于 MERN 技术栈的项目管理示例应用，前端提供项目看板和表单管理，后端提供完整的项目 CRUD 接口与统计接口。项目默认支持两种数据模式：
+一个前后端分离的现代 MERN 全栈项目模板，前端位于 `client`，后端位于 `server`。项目围绕“项目管理控制台”场景实现，包含完整的页面、路由、接口、数据存储、表单维护与状态统计能力，适合作为全栈后台项目的起步工程。
 
-- 配置 `MONGODB_URI` 时使用 MongoDB 持久化存储
-- 未配置数据库时自动回退到内存数据，便于本地直接启动演示
+## 项目概览
 
-## 项目介绍
+当前项目采用最新一代的常用技术栈与更规范的工程布局：
 
-当前项目是一个轻量级的项目资源管理后台，适合作为 MERN 全栈起步模板，也适合作为继续扩展用户、权限、任务、看板等业务模块的基础工程。
+- 前端：React 19 + Vite 8 + React Router 7 + Material UI 9
+- 后端：Node.js + Express 5 + Mongoose 9 + Zod 4
+- 架构：前后端完全分离，根目录统一管理工作区脚本
+- 数据模式：
+  - 配置 `MONGODB_URI` 时使用 MongoDB 持久化存储
+  - 未配置数据库时自动回退到内存数据，便于本地直接运行
 
-前端页面以英文文案展示项目列表、统计信息和新增编辑表单；后端提供与页面对应的健康检查、列表查询、统计汇总、创建、更新、删除接口，前后端已经打通，不再是占位示例。
+## 主要功能
 
-## 功能模块
+### 前端页面功能
 
-### 1. 前端模块
+- 首页概览页
+  - 展示系统定位、运行状态、架构说明
+  - 展示项目总数、已完成、进行中、待规划统计
+  - 展示最近项目记录预览
+- 项目管理页
+  - 支持项目列表展示
+  - 支持关键字筛选
+  - 支持状态筛选
+  - 支持新增项目
+  - 支持编辑项目
+  - 支持删除项目
+  - 支持查看技术栈、仓库地址、演示地址
 
-- 项目概览区：展示系统定位、服务运行状态、当前数据模式
-- 统计卡片区：展示项目总数、已完成、进行中、待规划数量
-- 项目表单区：支持新增项目、编辑项目、取消编辑
-- 项目列表区：支持查看详情摘要、技术栈、仓库地址、演示地址
-- 操作区：支持编辑和删除项目记录
+### 后端接口功能
 
-### 2. 后端模块
+- 健康检查接口
+- 项目列表接口
+- 项目统计接口
+- 项目创建接口
+- 项目更新接口
+- 项目删除接口
+- 请求校验、中间件、错误处理、数据模式切换
 
-- 服务健康检查：返回服务运行状态、当前数据模式、时间戳
-- 项目列表接口：返回全部项目数据
-- 项目统计接口：返回总数与状态分布
-- 项目创建接口：校验必填字段后新增项目
-- 项目更新接口：根据项目 ID 更新内容
-- 项目删除接口：根据项目 ID 删除记录
-- 数据存储层：优先使用 MongoDB，失败或未配置时自动切换到内存数据
+## 技术架构
+
+### 根目录
+
+根目录只负责项目级配置与工作区命令：
+
+- 统一依赖安装
+- 同时启动前后端
+- 统一构建
+- 环境变量示例与忽略规则维护
+
+### 前端架构
+
+前端所有代码都在 `client`，并按职责拆分：
+
+- `src/app`：应用入口、Provider、上下文辅助
+- `src/router`：路由定义
+- `src/layouts`：布局层
+- `src/pages`：页面层
+- `src/components`：组件层
+- `src/hooks`：状态与数据逻辑
+- `src/services`：接口请求封装
+- `src/utils`：表单与业务辅助方法
+- `src/styles`：主题与全局样式
+
+前端统一使用 `@/` 作为 `src` 路径别名。
+
+### 后端架构
+
+后端所有代码都在 `server`，并按现代分层结构组织：
+
+- `src/config`：环境变量、数据库、CORS 配置
+- `src/controllers`：控制器
+- `src/middleware`：中间件
+- `src/models`：Mongoose 模型
+- `src/routes`：路由定义
+- `src/services`：数据服务层
+- `src/validators`：请求参数校验
+- `src/utils`：工具函数
+- `src/data`：默认演示数据
+
+## 目录结构
+
+```text
+mernboilerplate-web
+├── client
+│   ├── public
+│   ├── src
+│   │   ├── app
+│   │   ├── components
+│   │   ├── hooks
+│   │   ├── layouts
+│   │   ├── pages
+│   │   ├── router
+│   │   ├── services
+│   │   ├── styles
+│   │   └── utils
+│   ├── index.html
+│   ├── jsconfig.json
+│   ├── package.json
+│   └── vite.config.js
+├── server
+│   ├── src
+│   │   ├── config
+│   │   ├── controllers
+│   │   ├── data
+│   │   ├── middleware
+│   │   ├── models
+│   │   ├── routes
+│   │   ├── services
+│   │   ├── utils
+│   │   └── validators
+│   └── package.json
+├── .env.example
+├── .gitignore
+├── package.json
+└── README.md
+```
 
 ## 页面说明
 
-当前前端只有一个主页面，但页面内已经拆分为清晰的功能区域：
+### `/`
 
-- `Hero` 区域：展示应用说明与后端运行状态
-- `Summary` 区域：展示项目状态统计
-- `Project Form` 区域：维护项目数据
-- `Current Records` 区域：展示项目列表并提供编辑、删除操作
+首页概览页，主要展示：
+
+- 当前项目定位
+- 服务运行状态
+- 数据模式
+- 项目统计数据
+- 最近项目记录
+- 前后端架构说明
+
+### `/projects`
+
+项目管理页，主要提供：
+
+- 项目筛选
+- 项目卡片列表
+- 新增项目弹窗
+- 编辑项目弹窗
+- 删除项目操作
+- 创建、更新、删除后的反馈提示
 
 ## 接口说明
 
@@ -46,7 +149,7 @@
 
 ### `GET /api/v1/health`
 
-返回服务健康状态。
+返回服务状态与数据模式。
 
 示例响应：
 
@@ -73,7 +176,8 @@
   "total": 3,
   "completed": 1,
   "inProgress": 1,
-  "planned": 1
+  "planned": 1,
+  "mode": "memory"
 }
 ```
 
@@ -85,70 +189,23 @@
 
 ```json
 {
-  "title": "Operations Dashboard",
+  "title": "Delivery Command Center",
   "category": "Full Stack",
   "status": "Planned",
-  "summary": "A shared workspace for release visibility and delivery tracking.",
-  "stack": ["React", "Express", "MongoDB"],
+  "summary": "A shared control surface for portfolio tracking and release planning.",
+  "stack": ["React 19", "Vite 8", "Express 5"],
   "repoUrl": "https://github.com/example/project",
   "demoUrl": "https://example.com/demo"
 }
 ```
 
-### `PUT /api/v1/projects/:id`
+### `PUT /api/v1/projects/:projectId`
 
-更新指定项目。
+更新项目。
 
-### `DELETE /api/v1/projects/:id`
+### `DELETE /api/v1/projects/:projectId`
 
-删除指定项目。
-
-## 技术架构
-
-### 前端
-
-- React 18
-- Create React App
-- 原生 `fetch` 调用接口
-- 纯 CSS 实现响应式页面
-
-### 后端
-
-- Node.js 18
-- Express 4
-- Mongoose 6
-- CORS
-- dotenv
-
-### 数据层
-
-- `config/database.js`：数据库连接与模式切换
-- `models/projectModel.js`：MongoDB 项目模型
-- `services/projectStore.js`：统一项目数据读写入口
-- `data/defaultProjects.js`：默认演示数据
-
-## 目录结构
-
-```text
-mernboilerplate-web
-├── client
-│   ├── public
-│   └── src
-│       ├── components
-│       │   └── styles
-│       ├── index.css
-│       └── index.js
-├── config
-├── data
-├── models
-├── routes
-│   └── api
-├── services
-├── .env.example
-├── .gitignore
-├── package.json
-└── server.js
-```
+删除项目。
 
 ## 启动方式
 
@@ -157,87 +214,72 @@ mernboilerplate-web
 在项目根目录执行：
 
 ```bash
-yarn install
-```
-
-或：
-
-```bash
 npm install
-```
-
-再安装前端依赖：
-
-```bash
-cd client && yarn install
-```
-
-或：
-
-```bash
-cd client && npm install
 ```
 
 ### 2. 配置环境变量
 
-复制根目录 `.env.example` 为 `.env`，按需修改：
+在根目录创建 `.env`，可参考 `.env.example`：
 
 ```env
-PORT=5000
+CLIENT_PORT=5173
+SERVER_PORT=5051
+CLIENT_ORIGIN=http://localhost:5173
+VITE_API_BASE_URL=http://localhost:5051/api/v1
 MONGODB_URI=mongodb://127.0.0.1:27017/mern-project-console
 ```
 
-如果不配置 `MONGODB_URI`，项目也可以启动，此时使用内存数据模式。
+说明：
 
-### 3. 启动后端
+- `CLIENT_PORT`：前端开发端口
+- `SERVER_PORT`：后端服务端口
+- `CLIENT_ORIGIN`：后端允许访问的前端地址
+- `VITE_API_BASE_URL`：前端接口基础地址
+- `MONGODB_URI`：MongoDB 连接地址
 
-```bash
-yarn dev
-```
-
-或：
+### 3. 同时启动前后端
 
 ```bash
 npm run dev
 ```
 
-后端默认运行在 `http://localhost:5000`
+默认访问地址：
 
-### 4. 启动前端
+- 前端：`http://localhost:5173`
+- 后端：`http://localhost:5051`
 
-```bash
-cd client && yarn start
-```
-
-或：
+### 4. 单独启动前端
 
 ```bash
-cd client && npm start
+npm run client
 ```
 
-前端默认运行在 `http://localhost:3000`
-
-### 5. 同时启动前后端
-
-在项目根目录执行：
+### 5. 单独启动后端
 
 ```bash
-yarn mern
+npm run server
 ```
 
-或：
+### 6. 构建项目
 
 ```bash
-npm run mern
+npm run build
 ```
 
-## 可扩展方向
+其中：
 
-- 增加用户登录与权限控制
-- 为项目增加负责人、优先级、截止日期等字段
-- 接入分页、筛选、搜索能力
-- 增加单元测试与接口测试
-- 将项目模块扩展为任务管理或团队协作系统
+- `client` 执行 Vite 生产构建
+- `server` 执行语法与结构检查
+
+## 当前项目特点
+
+- 已完成前后端分离
+- 已升级到更新的主流版本栈
+- 已补齐前后端完整 CRUD 流程
+- 已将前端按路由、页面、组件、方法、服务拆分
+- 已将后端按配置、控制器、中间件、模型、路由、校验、服务拆分
+- 已移除旧版 CRA 与旧版根级后端结构中的无用文件
+- 已保留 MongoDB 模式与无数据库可运行的回退模式
 
 ## License
 
