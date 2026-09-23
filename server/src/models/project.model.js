@@ -17,6 +17,22 @@ const projectSchema = new mongoose.Schema(
             enum: ['Planned', 'In Progress', 'Completed'],
             default: 'Planned',
         },
+        priority: {
+            type: String,
+            enum: ['Low', 'Medium', 'High', 'Critical'],
+            default: 'Medium',
+        },
+        health: {
+            type: String,
+            enum: ['Healthy', 'Watch', 'At Risk'],
+            default: 'Healthy',
+        },
+        progress: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100,
+        },
         summary: {
             type: String,
             required: true,
@@ -26,12 +42,26 @@ const projectSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        ownerId: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        memberIds: {
+            type: [String],
+            default: [],
+        },
         repoUrl: {
             type: String,
             default: '',
             trim: true,
         },
         demoUrl: {
+            type: String,
+            default: '',
+            trim: true,
+        },
+        dueDate: {
             type: String,
             default: '',
             trim: true,

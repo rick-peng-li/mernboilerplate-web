@@ -1,19 +1,19 @@
 import { Router } from 'express';
 import {
+    getProjectDetail,
     getProjects,
-    getProjectsSummary,
     postProject,
     putProject,
     removeProject,
-} from '../controllers/project.controller.js';
+} from '../controllers/projects.controller.js';
 import { validateRequest } from '../middleware/validate-request.js';
 import { asyncHandler } from '../utils/async-handler.js';
-import { projectPayloadSchema } from '../validators/project.schema.js';
+import { projectPayloadSchema } from '../validators/workspace.schema.js';
 
 const router = Router();
 
 router.get('/', asyncHandler(getProjects));
-router.get('/summary', asyncHandler(getProjectsSummary));
+router.get('/:projectId', asyncHandler(getProjectDetail));
 router.post('/', validateRequest(projectPayloadSchema), asyncHandler(postProject));
 router.put('/:projectId', validateRequest(projectPayloadSchema), asyncHandler(putProject));
 router.delete('/:projectId', asyncHandler(removeProject));

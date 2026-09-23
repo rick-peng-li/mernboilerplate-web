@@ -18,4 +18,5 @@ export const env = {
     port: Number(process.env.SERVER_PORT || process.env.PORT || 5051),
     clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
     mongoUri: process.env.MONGODB_URI || '',
+    authSecret: process.env.AUTH_SECRET || 'development-auth-secret',
 };

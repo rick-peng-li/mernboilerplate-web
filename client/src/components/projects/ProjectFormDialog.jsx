@@ -1,5 +1,7 @@
 import {
+    Box,
     Button,
+    Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -9,11 +11,19 @@ import {
     TextField,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { initialProjectFormValues, mapProjectToFormValues, normalizeProjectPayload } from '@/utils/project-form';
-import { projectStatusOptions } from '@/utils/project-status';
+import {
+    initialProjectValues,
+    mapProjectToFormValues,
+    normalizeProjectPayload,
+} from '@/utils/form-models';
+import {
+    projectHealthOptions,
+    projectPriorityOptions,
+    projectStatusOptions,
+} from '@/utils/workspace-options';
 
-function ProjectFormDialog({ project, open, isSaving, onClose, onSubmit }) {
-    const [formValues, setFormValues] = useState(initialProjectFormValues);
+function ProjectFormDialog({ project, memberOptions, open, isSaving, onClose, onSubmit }) {
+    const [formValues, setFormValues] = useState(initialProjectValues);
     const dialogTitle = useMemo(() => (project ? 'Edit project' : 'Create project'), [project]);
 
     useEffect(() => {
@@ -67,6 +77,42 @@ function ProjectFormDialog({ project, open, isSaving, onClose, onSubmit }) {
                                 </MenuItem>
                             ))}
                         </TextField>
+                        <TextField
+                            select
+                            label="Priority"
+                            value={formValues.priority}
+                            onChange={(event) => handleFieldChange('priority', event.target.value)}
+                            fullWidth
+                        >
+                            {projectPriorityOptions.map((priority) => (
+                                <MenuItem key={priority} value={priority}>
+                                    {priority}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Stack>
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                        <TextField
+                            select
+                            label="Health"
+                            value={formValues.health}
+                            onChange={(event) => handleFieldChange('health', event.target.value)}
+                            fullWidth
+                        >
+                            {projectHealthOptions.map((health) => (
+                                <MenuItem key={health} value={health}>
+                                    {health}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="Progress"
+                            type="number"
+                            value={formValues.progress}
+                            onChange={(event) => handleFieldChange('progress', event.target.value)}
+                            inputProps={{ min: 0, max: 100 }}
+                            fullWidth
+                        />
                     </Stack>
                     <TextField
                         label="Summary"
@@ -84,6 +130,53 @@ function ProjectFormDialog({ project, open, isSaving, onClose, onSubmit }) {
                         placeholder="React 19, Vite 8, Express 5"
                         fullWidth
                     />
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                        <TextField
+                            select
+                            label="Owner"
+                            value={formValues.ownerId}
+                            onChange={(event) => handleFieldChange('ownerId', event.target.value)}
+                            fullWidth
+                        >
+                            {memberOptions.map((member) => (
+                                <MenuItem key={member.value} value={member.value}>
+                                    {member.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="Due date"
+                            type="date"
+                            value={formValues.dueDate}
+                            onChange={(event) => handleFieldChange('dueDate', event.target.value)}
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                        />
+                    </Stack>
+                    <TextField
+                        select
+                        label="Project members"
+                        value={formValues.memberIds}
+                        onChange={(event) => handleFieldChange('memberIds', event.target.value)}
+                        SelectProps={{
+                            multiple: true,
+                            renderValue: (selected) => (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                                    {selected.map((memberId) => {
+                                        const member = memberOptions.find((item) => item.value === memberId);
+                                        return <Chip key={memberId} label={member?.label || memberId} size="small" />;
+                                    })}
+                                </Box>
+                            ),
+                        }}
+                        fullWidth
+                    >
+                        {memberOptions.map((member) => (
+                            <MenuItem key={member.value} value={member.value}>
+                                {member.label}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                         <TextField
                             label="Repository URL"

@@ -1,37 +1,32 @@
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import {
-    Alert,
-    Button,
-    Card,
-    CardContent,
-    Grid,
-    Snackbar,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Alert, Button, Card, CardContent, Grid, Stack } from '@mui/material';
 import { useMemo, useState } from 'react';
+import { useWorkspaceContext } from '@/app/useWorkspaceContext';
+import ActionSnackbar from '@/components/common/ActionSnackbar';
+import EmptyState from '@/components/common/EmptyState';
 import SectionHeader from '@/components/common/SectionHeader';
 import ProjectCard from '@/components/projects/ProjectCard';
 import ProjectFilters from '@/components/projects/ProjectFilters';
 import ProjectFormDialog from '@/components/projects/ProjectFormDialog';
-import { useDashboardContext } from '@/app/useDashboardContext';
 
 function ProjectsPage() {
     const {
-        deletingId,
+        activeMutationKey,
         errorMessage,
-        health,
         isLoading,
         isSaving,
+        memberOptions,
+        members,
         projects,
         removeProject,
         saveProject,
-    } = useDashboardContext();
+    } = useWorkspaceContext();
 
     const [filters, setFilters] = useState({
         search: '',
         status: 'All',
+        priority: 'All',
+        category: 'All',
     });
     const [activeProject, setActiveProject] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -41,19 +36,26 @@ function ProjectsPage() {
         message: '',
     });
 
+    const memberMap = useMemo(() => Object.fromEntries(members.map((member) => [member.id, member])), [members]);
+    const categories = useMemo(() => [...new Set(projects.map((project) => project.category))], [projects]);
+
     const filteredProjects = useMemo(() => {
         const searchValue = filters.search.trim().toLowerCase();
 
         return projects.filter((project) => {
-            const matchesStatus = filters.status === 'All' || project.status === filters.status;
             const matchesSearch =
                 !searchValue ||
                 project.title.toLowerCase().includes(searchValue) ||
-                project.category.toLowerCase().includes(searchValue) ||
                 project.summary.toLowerCase().includes(searchValue) ||
+                project.category.toLowerCase().includes(searchValue) ||
                 project.stack.some((item) => item.toLowerCase().includes(searchValue));
 
-            return matchesStatus && matchesSearch;
+            return (
+                matchesSearch &&
+                (filters.status === 'All' || project.status === filters.status) &&
+                (filters.priority === 'All' || project.priority === filters.priority) &&
+                (filters.category === 'All' || project.category === filters.category)
+            );
         });
     }, [filters, projects]);
 
@@ -64,24 +66,23 @@ function ProjectsPage() {
         }));
     }
 
-    function openCreateDialog() {
+    function handleCreate() {
         setActiveProject(null);
         setDialogOpen(true);
     }
 
-    function openEditDialog(project) {
+    function handleEdit(project) {
         setActiveProject(project);
         setDialogOpen(true);
     }
 
-    function closeDialog() {
+    function handleCloseDialog() {
         setDialogOpen(false);
         setActiveProject(null);
     }
 
-    async function handleSubmit(formValues, projectId) {
-        const result = await saveProject(formValues, projectId);
-
+    async function handleSubmit(payload, projectId) {
+        const result = await saveProject(payload, projectId);
         setSnackbar({
             open: true,
             severity: result.success ? 'success' : 'error',
@@ -89,13 +90,12 @@ function ProjectsPage() {
         });
 
         if (result.success) {
-            closeDialog();
+            handleCloseDialog();
         }
     }
 
     async function handleDelete(project) {
         const result = await removeProject(project.id);
-
         setSnackbar({
             open: true,
             severity: result.success ? 'success' : 'error',
@@ -107,10 +107,10 @@ function ProjectsPage() {
         <Stack spacing={4}>
             <SectionHeader
                 eyebrow="Projects"
-                title="Project management workspace"
-                description="Create, update, filter, and remove project records through a modern Vite client connected to the upgraded Express API."
+                title="Project portfolio"
+                description="Manage project scope, owners, members, delivery health, priorities, and linked workspace metadata from one page."
                 action={
-                    <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreateDialog}>
+                    <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={handleCreate}>
                         New project
                     </Button>
                 }
@@ -119,43 +119,29 @@ function ProjectsPage() {
             <Card>
                 <CardContent>
                     <Stack spacing={2.5}>
-                        <Stack
-                            direction={{ xs: 'column', lg: 'row' }}
-                            spacing={2}
-                            justifyContent="space-between"
-                            alignItems={{ xs: 'flex-start', lg: 'center' }}
-                        >
-                            <Stack direction="row" spacing={1.5} alignItems="center">
-                                <InfoOutlinedIcon color="secondary" />
-                                <Typography color="text.secondary">
-                                    {errorMessage || `Data source: ${health.mode}. ${projects.length} project records currently loaded.`}
-                                </Typography>
-                            </Stack>
-                            <ProjectFilters filters={filters} onChange={handleFilterChange} />
-                        </Stack>
-
-                        {isLoading ? (
-                            <Alert severity="info">Loading the latest projects from the API...</Alert>
-                        ) : null}
-
+                        <ProjectFilters filters={filters} onChange={handleFilterChange} categories={categories} />
+                        {errorMessage ? <Alert severity="warning">{errorMessage}</Alert> : null}
+                        {isLoading ? <Alert severity="info">Loading project portfolio...</Alert> : null}
                         {!isLoading && filteredProjects.length === 0 ? (
-                            <Alert severity="warning">
-                                No projects match the current filters. Try clearing the search field or adding a new project.
-                            </Alert>
-                        ) : null}
-
-                        <Grid container spacing={2.5}>
-                            {filteredProjects.map((project) => (
-                                <Grid key={project.id} size={{ xs: 12, md: 6, xl: 4 }}>
-                                    <ProjectCard
-                                        project={project}
-                                        isDeleting={deletingId === project.id}
-                                        onEdit={openEditDialog}
-                                        onDelete={handleDelete}
-                                    />
-                                </Grid>
-                            ))}
-                        </Grid>
+                            <EmptyState
+                                title="No projects match the current filters"
+                                description="Try changing the filter set or create a new project to expand the portfolio."
+                            />
+                        ) : (
+                            <Grid container spacing={2.5}>
+                                {filteredProjects.map((project) => (
+                                    <Grid key={project.id} size={{ xs: 12, md: 6, xl: 4 }}>
+                                        <ProjectCard
+                                            project={project}
+                                            owner={memberMap[project.ownerId]}
+                                            isDeleting={activeMutationKey === project.id}
+                                            onDelete={handleDelete}
+                                            onEdit={handleEdit}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        )}
                     </Stack>
                 </CardContent>
             </Card>
@@ -163,21 +149,16 @@ function ProjectsPage() {
             <ProjectFormDialog
                 open={dialogOpen}
                 project={activeProject}
+                memberOptions={memberOptions}
                 isSaving={isSaving}
-                onClose={closeDialog}
+                onClose={handleCloseDialog}
                 onSubmit={handleSubmit}
             />
 
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3200}
+            <ActionSnackbar
+                snackbar={snackbar}
                 onClose={() => setSnackbar((currentState) => ({ ...currentState, open: false }))}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert severity={snackbar.severity} variant="filled">
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            />
         </Stack>
     );
 }
