@@ -4,6 +4,7 @@ import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import RocketLaunchRoundedIcon from '@mui/icons-material/RocketLaunchRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
@@ -16,6 +17,10 @@ import {
     Chip,
     Container,
     IconButton,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
     Stack,
     Toolbar,
     Typography,
@@ -73,6 +78,11 @@ function AppLayout() {
     const { logout, user } = useAuth();
     const location = useLocation();
     const [isSigningOut, setIsSigningOut] = useState(false);
+    const [navigationAnchor, setNavigationAnchor] = useState(null);
+
+    const activeNavigationItem =
+        navigationItems.find((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)) ||
+        navigationItems[0];
 
     async function handleLogout() {
         setIsSigningOut(true);
@@ -82,6 +92,14 @@ function AppLayout() {
         } finally {
             setIsSigningOut(false);
         }
+    }
+
+    function handleOpenNavigation(event) {
+        setNavigationAnchor(event.currentTarget);
+    }
+
+    function handleCloseNavigation() {
+        setNavigationAnchor(null);
     }
 
     return (
@@ -96,9 +114,18 @@ function AppLayout() {
                     borderBottom: '1px solid rgba(255,255,255,0.08)',
                 }}
             >
-                <Toolbar sx={{ minHeight: 80 }}>
-                    <Container maxWidth="xl" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexGrow: 1 }}>
+                <Toolbar sx={{ minHeight: 72 }}>
+                    <Container
+                        maxWidth="xl"
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 1.5,
+                            flexWrap: 'nowrap',
+                        }}
+                    >
+                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexGrow: 1, minWidth: 0 }}>
                             <Box
                                 sx={{
                                     width: 42,
@@ -111,30 +138,53 @@ function AppLayout() {
                             >
                                 <AutoAwesomeRoundedIcon />
                             </Box>
-                            <Box>
-                                <Typography variant="h6">MERN Project Console</Typography>
-                                <Typography variant="body2" color="text.secondary">
+                            <Box sx={{ minWidth: 0 }}>
+                                <Typography variant="h6" noWrap>
+                                    MERN Project Console
+                                </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    noWrap
+                                    sx={{ display: { xs: 'none', lg: 'block' } }}
+                                >
                                     Full-stack workspace built with current generation tooling
                                 </Typography>
                             </Box>
                         </Stack>
 
-                        <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
-                            {navigationItems.map((item) => (
-                                <Button
-                                    key={item.to}
-                                    component={NavLink}
-                                    to={item.to}
-                                    startIcon={item.icon}
-                                    variant={location.pathname === item.to ? 'contained' : 'text'}
-                                >
-                                    {item.label}
-                                </Button>
-                            ))}
-                        </Stack>
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+                            <Button
+                                variant="outlined"
+                                startIcon={activeNavigationItem.icon}
+                                endIcon={<KeyboardArrowDownRoundedIcon />}
+                                onClick={handleOpenNavigation}
+                                sx={{ minWidth: 0 }}
+                            >
+                                {activeNavigationItem.label}
+                            </Button>
+                            <Menu
+                                anchorEl={navigationAnchor}
+                                open={Boolean(navigationAnchor)}
+                                onClose={handleCloseNavigation}
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            >
+                                {navigationItems.map((item) => (
+                                    <MenuItem
+                                        key={item.to}
+                                        component={NavLink}
+                                        to={item.to}
+                                        selected={activeNavigationItem.to === item.to}
+                                        onClick={handleCloseNavigation}
+                                    >
+                                        <ListItemIcon>{item.icon}</ListItemIcon>
+                                        <ListItemText>{item.label}</ListItemText>
+                                    </MenuItem>
+                                ))}
+                            </Menu>
 
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Stack direction="row" spacing={1.25} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' } }}>
+                            <Stack direction="row" spacing={1.25} alignItems="center" sx={{ display: { xs: 'none', xl: 'flex' } }}>
                                 <Avatar sx={{ width: 38, height: 38, bgcolor: 'primary.main' }}>
                                     {user?.name?.charAt(0) || 'U'}
                                 </Avatar>
@@ -151,6 +201,7 @@ function AppLayout() {
                                 label={`${workspace.health.mode} mode`}
                                 color={workspace.health.mode === 'mongodb' ? 'success' : 'warning'}
                                 variant="outlined"
+                                sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
                             />
                             <IconButton color="inherit" onClick={workspace.loadWorkspace} disabled={workspace.isLoading}>
                                 <RefreshRoundedIcon />
